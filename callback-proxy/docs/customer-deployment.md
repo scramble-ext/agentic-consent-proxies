@@ -44,7 +44,8 @@ Do this first. The proxy cannot start without a client id.
    `consent.outcome.read`.
 2. Use its client id as `auth.clientId`, and its private key as `secrets/private.pem` (§5).
 
-The proxy receives every outcome in your organization. If you run more than one proxy, see
+The proxy receives every outcome in your organization that has a `callbackUrl`. If you run more
+than one proxy, see
 "Outcomes to your Proxy" in the [consent guide](https://consent.scrambleid.com/docs?guide=decision-and-consent).
 
 ---
