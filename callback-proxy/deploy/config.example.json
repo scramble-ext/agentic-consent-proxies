@@ -1,0 +1,100 @@
+{
+  "_comment": "Copy to config/config.json and fill in. Non-secret only. Values from ScrambleID: consent.baseUrl, consent.tenant, auth.tokenEndpoint, auth.issuer, auth.clientId. Values you own: callbackPolicy.*. Secrets (private key) are mounted as files, never placed here.",
+
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8080
+  },
+
+  "consent": {
+    "baseUrl": "https://REPLACE.scrambleid.com/orgs/REPLACE_TENANT/api/v1",
+    "eventStreamPath": "/consent-requests/events",
+    "tenant": "REPLACE_TENANT"
+  },
+
+  "auth": {
+    "mode": "privateKeyJwt",
+    "scope": "consent.outcome.read",
+    "tokenEndpoint": "https://REPLACE.scrambleid.com/oidc/REPLACE/token",
+    "issuer": "https://REPLACE.scrambleid.com/oidc/REPLACE",
+    "clientId": "REPLACE_CLIENT_ID",
+    "signingAlg": "RS256",
+    "assertionTtlSeconds": 300,
+
+    "_auth_alternatives": "To use clientCredentials: set mode=clientCredentials, keep tokenEndpoint + clientId, and mount the secret via AUTH_CLIENT_SECRET_FILE. To use static: set mode=static and mount a pre-obtained token via UPSTREAM_TOKEN_FILE. In both cases remove the privateKeyJwt-only fields (issuer, signingAlg, assertionTtlSeconds)."
+  },
+
+  "callbackPolicy": {
+    "_comment": "Controls where the proxy may deliver. Empty allowedHosts = deny all. The resolved address must fall within allowedCidrs; loopback/link-local/metadata are always blocked.",
+    "allowedHosts": ["your-receiver.internal"],
+    "allowedCidrs": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"],
+    "requireHttps": true,
+    "allowLoopback": false,
+    "defaultTimeoutMs": 10000
+  },
+
+  "_callback_auth_comment": "OPTIONAL. Leave this whole block out (or mechanism=none) and NO callback bearer is sent — the proxy NEVER reuses the upstream ScrambleID M2M token for callbacks. To authenticate deliveries, set a mechanism to mint a DEDICATED callback token from a ScrambleID OR your own auth server, and set CALLBACK_AUTH_ORIGIN. NOTE: setting CALLBACK_AUTH_ORIGIN WITHOUT a mechanism now FAILS STARTUP. Non-secret fields only — the private key / client secret are mounted as files (see .env.example and docker-compose.yml). To enable, replace the block below with ONE of the two examples and remove the leading underscore from the key name (rename _callback to callback).",
+
+  "_callback_discovery_note": "Either mechanism may use OIDC discovery INSTEAD of a hand-configured tokenEndpoint: set discoveryUrl to the auth server's .well-known/openid-configuration and the proxy reads the token endpoint from it (once, cached, HTTPS-only + SSRF-guarded). If BOTH discoveryUrl and tokenEndpoint are set, the explicit tokenEndpoint wins. jwksUri is optional and informational/override only (your receiver validates tokens, not the proxy).",
+
+  "_callback": {
+    "auth_privateKeyJwt_example": {
+      "mechanism": "privateKeyJwt",
+      "tokenEndpoint": "https://REPLACE-auth.example.com/oauth2/token",
+      "issuer": "https://REPLACE-auth.example.com",
+      "clientId": "REPLACE_CALLBACK_CLIENT_ID",
+      "scope": "callback.write",
+      "audience": "https://your-receiver.internal",
+      "signingAlg": "RS256",
+      "keyId": "REPLACE_OR_REMOVE_KID",
+      "assertionTtlSeconds": 60
+    },
+    "auth_privateKeyJwt_discovery_example": {
+      "mechanism": "privateKeyJwt",
+      "discoveryUrl": "https://REPLACE-auth.example.com/.well-known/openid-configuration",
+      "clientId": "REPLACE_CALLBACK_CLIENT_ID",
+      "scope": "callback.write",
+      "signingAlg": "RS256",
+      "assertionTtlSeconds": 60,
+      "_note": "Alternative to tokenEndpoint: the token endpoint (and, if absent here, the assertion aud) come from the discovery document."
+    },
+    "auth_clientCredentials_example": {
+      "mechanism": "clientCredentials",
+      "tokenEndpoint": "https://REPLACE-auth.example.com/oauth2/token",
+      "clientId": "REPLACE_CALLBACK_CLIENT_ID",
+      "scope": "callback.write",
+      "audience": "https://your-receiver.internal",
+      "clientAuthMethod": "client_secret_basic"
+    },
+    "auth_clientCredentials_discovery_example": {
+      "mechanism": "clientCredentials",
+      "discoveryUrl": "https://REPLACE-auth.example.com/.well-known/openid-configuration",
+      "jwksUri": "https://REPLACE-auth.example.com/jwks",
+      "clientId": "REPLACE_CALLBACK_CLIENT_ID",
+      "scope": "callback.write",
+      "clientAuthMethod": "client_secret_basic",
+      "_note": "Alternative to tokenEndpoint: the token endpoint comes from the discovery document. jwksUri is optional/informational."
+    }
+  },
+
+  "callbackRetry": {
+    "baseMs": 1000,
+    "maxMs": 30000,
+    "totalBudgetMs": 120000
+  },
+
+  "callbackAck": {
+    "enabled": true
+  },
+
+  "sse": {
+    "heartbeatTimeoutMs": 45000,
+    "reconnectBaseMs": 1000,
+    "reconnectMaxMs": 30000
+  },
+
+  "operations": {
+    "logLevel": "info",
+    "gracefulShutdownTimeoutMs": 15000
+  }
+}

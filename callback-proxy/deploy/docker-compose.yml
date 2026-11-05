@@ -1,0 +1,78 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# ScrambleID Consent Notification Proxy — customer deployment (self-contained).
+#
+# Run inside YOUR network. Outbound-only; no inbound exposure required.
+# Stateless: no database, no persistent volume, nothing to back up.
+#
+# Before `docker compose up -d`, in this directory you need:
+#   ./docker-compose.yml        this file
+#   ./.env                      copied from .env.example and filled in (no secrets)
+#   ./config/config.json        copied from config.example.json and filled in
+#   ./secrets/private.pem       YOUR private key (brought by you; see the runbook)
+#
+# See docs/customer-deployment.md for the full step-by-step.
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  consent-proxy:
+    # Pin to the exact version ScrambleID gave you (immutable tag or @sha256 digest).
+    # Registry pull:  ghcr.io/scramble-ext/consent-proxy:<version>
+    # Offline load:   the tag printed by `docker load` (e.g. consent-proxy:<version>)
+    image: ${CONSENT_PROXY_IMAGE:?Set CONSENT_PROXY_IMAGE to the pinned image, e.g. ghcr.io/scramble-ext/consent-proxy:1.0.0}
+    container_name: consent-proxy
+
+    # --- Hardened runtime ---
+    user: "node"                      # non-root (uid 1000)
+    read_only: true                   # read-only root filesystem
+    init: true                        # proper PID 1 / signal handling
+    restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 20s
+
+    # Health/metrics are bound to loopback by default. To scrape from another host,
+    # set CONSENT_PROXY_BIND_IP to an approved internal interface and firewall it.
+    ports:
+      - "${CONSENT_PROXY_BIND_IP:-127.0.0.1}:${CONSENT_PROXY_HOST_PORT:-8080}:8080"
+
+    # Non-secret runtime configuration.
+    env_file:
+      - .env
+
+    # Pinned here so they are never environment-specific.
+    environment:
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: "8080"
+
+    # --- Mounts (read-only) ---
+    #  - Your config JSON (referenced by CONFIG_PATH in .env; default ./config/config.json).
+    #  - Your private key, owned by uid 1000 and chmod 0400 on the host (see runbook).
+    #  - OPTIONAL dedicated callback-auth secrets (only if CALLBACK_AUTH_MECHANISM is set;
+    #    owned by uid 1000 and chmod 0400 like the upstream key — see the runbook).
+    volumes:
+      - ./config:/etc/consent-proxy/config:ro
+      - ./secrets/private.pem:/run/consent-proxy-secrets/private.pem:ro
+      # --- Callback auth: privateKeyJwt (uncomment if used) ---
+      # - ./secrets/callback-private.pem:/run/consent-proxy-secrets/callback-private.pem:ro
+      # If the callback PEM is encrypted, also mount its passphrase:
+      # - ./secrets/callback-passphrase:/run/consent-proxy-secrets/callback-passphrase:ro
+      # --- Callback auth: clientCredentials (uncomment if used) ---
+      # - ./secrets/callback-client-secret:/run/consent-proxy-secrets/callback-client-secret:ro
+      # --- Corporate or internal CA (uncomment if used; also set NODE_EXTRA_CA_CERTS in .env) ---
+      # - ./secrets/corp-ca.pem:/run/consent-proxy-secrets/corp-ca.pem:ro
+
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:8080/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
