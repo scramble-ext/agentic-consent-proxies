@@ -107,11 +107,10 @@ docker logs consent-proxy | grep "validation/SSRF"
 Recreate the container after editing `config.json`.
 
 ### 3b. `outcomes_received_total` is 0 (nothing coming in)
-- The consent-server routes outcomes only to the connection whose identity matches the
-  request's `(tenant, proxy_sub)`. A wrong `tenant` or `clientId` means your proxy connects
-  but never receives this tenant's events. Verify both against what ScrambleID registered.
-- The request may not be routed to this proxy. Check how requests reach a proxy under
-  "Outcomes to your Proxy" in the [consent guide](https://consent.scrambleid.com/docs?guide=decision-and-consent).
+- A wrong `consent.baseUrl` or `clientId` means your proxy connects but never receives your
+  organization's events. Verify both against your service account.
+- The request may name a different proxy. See "Outcomes to your Proxy" in the
+  [consent guide](https://consent.scrambleid.com/docs?guide=decision-and-consent).
 
 ---
 

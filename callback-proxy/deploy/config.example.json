@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy to config/config.json and fill in. Non-secret only. Values from ScrambleID: consent.baseUrl, consent.tenant, auth.tokenEndpoint, auth.issuer, auth.clientId. Values you own: callbackPolicy.*. Secrets (private key) are mounted as files, never placed here.",
+  "_comment": "Copy to config/config.json and fill in. Non-secret only. Values from ScrambleID: consent.baseUrl, consent.tenant, auth.tokenEndpoint, auth.issuer. Values you own: auth.clientId, callbackPolicy.*. Secrets (private key) are mounted as files, never placed here.",
 
   "server": {
     "host": "0.0.0.0",

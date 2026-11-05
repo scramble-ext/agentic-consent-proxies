@@ -18,8 +18,8 @@ No inbound connections are required.
   - the ScrambleID consent-server (`consent.baseUrl`),
   - the OIDC token endpoint (`auth.tokenEndpoint`),
   - your own callback endpoint.
-- Your **private key** (PEM) for the service account ScrambleID registered for you
-  (`privateKeyJwt` mode). You generate/hold this — it never passes through ScrambleID's CI.
+- The **private key** (PEM) of the proxy's service account (`privateKeyJwt` mode). You hold
+  this. It never passes through ScrambleID.
 
 > No inbound firewall rules are needed for the proxy's core function. Health/metrics bind to
 > loopback by default.
@@ -31,25 +31,21 @@ No inbound connections are required.
 | Provided by ScrambleID | Provided by you (customer) |
 |---|---|
 | Container image (registry access **or** offline tarball) + its checksum/digest | The host, Docker, and egress firewall rules |
-| `consent.baseUrl`, `tenant` | Your private key (`secrets/private.pem`), and its public key sent to ScrambleID |
-| `auth.tokenEndpoint`, `auth.issuer`, `auth.clientId` | Your callback endpoint |
+| `consent.baseUrl`, `tenant` | The proxy's service account, and its private key (`secrets/private.pem`) |
+| `auth.tokenEndpoint`, `auth.issuer` | Your callback endpoint |
 | The **JWKS URL** for your receiver, only if ScrambleID issues your callback token (§13) | The callback allowlist (`allowedHosts`, `allowedCidrs`) |
 | The pinned image version to run | Running/operating the container |
 
-### Register the proxy with ScrambleID
+### Create the proxy's service account
 
 Do this first. The proxy cannot start without a client id.
 
-1. Generate a key pair on a machine you trust:
-   ```bash
-   openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out private.pem
-   openssl pkey -in private.pem -pubout -out public.pem
-   ```
-2. Send **`public.pem` only** to your ScrambleID contact. Keep `private.pem`.
-3. ScrambleID registers the proxy's service account and gives you its client id
-   (`auth.clientId`).
-4. Make sure your agents' requests are routed to this proxy, or it connects and looks healthy
-   but receives nothing. See "Outcomes to your Proxy" in the [consent guide](https://consent.scrambleid.com/docs?guide=decision-and-consent).
+1. Create a service account for the proxy through the ScrambleID M2M flow, with the scope
+   `consent.outcome.read`.
+2. Use its client id as `auth.clientId`, and its private key as `secrets/private.pem` (§5).
+
+The proxy receives every outcome in your organization. If you run more than one proxy, see
+"Outcomes to your Proxy" in the [consent guide](https://consent.scrambleid.com/docs?guide=decision-and-consent).
 
 ---
 
@@ -138,7 +134,7 @@ Leave `CALLBACK_AUTH_ORIGIN` unset unless you turn on callback authentication (�
 on its own **stops the proxy from starting**.
 
 ### `config/config.json` (non-secret)
-Fill in the values ScrambleID gave you and your allowlist:
+Fill in the values ScrambleID gave you, your service account's client id, and your allowlist:
 - `consent.baseUrl` (it must end in `/orgs/<org>/api/v1`), `consent.tenant`.
 - `auth.tokenEndpoint`, `auth.issuer`, `auth.clientId` (keep `mode: "privateKeyJwt"`).
 - `callbackPolicy.allowedHosts` — the hostname(s) of your callback endpoint.

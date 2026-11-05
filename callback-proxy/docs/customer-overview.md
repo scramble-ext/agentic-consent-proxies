@@ -153,7 +153,7 @@ from mounted files or environment variables and are **never written to logs**.
 |---|---|---|
 | Consent-server base URL | `https://consent.scrambleid.com/orgs/<org>/api/v1` | Where the proxy connects out to. Provided by ScrambleID. |
 | Tenant label | `your-tenant` | Identifies your organization. Provided by ScrambleID. |
-| Upstream credential | a private key | How the proxy authenticates to the consent-server. **You generate it** and ScrambleID registers the public key. |
+| Upstream credential | the private key of the proxy's service account | How the proxy authenticates to the consent-server. **You create the service account** through the ScrambleID M2M flow. |
 | Callback allowlist | hosts + IP ranges (CIDRs) | The internal destinations the proxy is permitted to deliver to. **You define this.** |
 | Callback endpoint | `https://workflow.internal/consent/outcome` | Your application endpoint that receives decisions. **You run this.** |
 | Receiver origin | `https://workflow.internal` | The exact origin the proxy may attach its bearer token to (`CALLBACK_AUTH_ORIGIN`). Required only when you configure a dedicated callback credential. **You define this.** |
