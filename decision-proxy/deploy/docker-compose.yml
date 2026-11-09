@@ -1,0 +1,63 @@
+# ScrambleID policy decision proxy: customer deployment.
+#
+# Runs inside your network. Outbound to ScrambleID, your token issuer and your JWKS URL.
+# Inbound only from your gateway. No database, no volume, nothing to back up.
+#
+# In this directory before `docker compose up -d`:
+#   ./docker-compose.yml   this file
+#   ./.env                 from .env.example, filled in (no secrets)
+#   ./secrets/private.pem  YOUR private key, made on this host (owner 1000, chmod 0400)
+#                          Only the public half goes to ScrambleID. Never in the image or in git.
+#
+# Full steps: docs/customer-deployment.md.
+
+services:
+  policy-decision-proxy:
+    # Pin the exact version ScrambleID gave you (tag or @sha256 digest). Never `latest`.
+    image: ${DECISION_PROXY_IMAGE:?Set DECISION_PROXY_IMAGE, e.g. ghcr.io/scramble-ext/policy-decision-proxy:1.0.0}
+    container_name: policy-decision-proxy
+
+    # Hardened runtime
+    user: "node"
+    read_only: true
+    init: true
+    restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 20s
+
+    # Your gateway must reach this port. Bind to the internal interface it uses, not 0.0.0.0.
+    ports:
+      - "${DECISION_PROXY_BIND_IP:?Set DECISION_PROXY_BIND_IP to the internal IP your gateway reaches}:${DECISION_PROXY_HOST_PORT:-8080}:8080"
+
+    env_file:
+      - .env
+
+    environment:
+      DECISION_PROXY_HOST: 0.0.0.0
+      DECISION_PROXY_PORT: "8080"
+
+    # The private key is mounted read-only at run time; the decision proxy reads it once at start.
+    volumes:
+      - ./secrets/private.pem:/run/policy-decision-proxy-secrets/private.pem:ro
+      # Encrypted key: also mount its passphrase and set DECISION_PROXY_PRIVATE_KEY_PASSPHRASE_FILE.
+      # - ./secrets/passphrase:/run/policy-decision-proxy-secrets/passphrase:ro
+      # Uncomment if your network re-signs TLS (corporate CA); also set NODE_EXTRA_CA_CERTS in .env.
+      # - ./secrets/corp-ca.pem:/run/policy-decision-proxy-secrets/corp-ca.pem:ro
+
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+
+    # Alive, not ready. A stale decision proxy must leave your gateway's rotation, not be restarted.
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:8080/health/live').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
