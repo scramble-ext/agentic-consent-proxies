@@ -36,15 +36,20 @@ Nothing is stored on disk except the key file.
 | | `DECISION_PROXY_BIND_IP`: the internal IP your gateway reaches |
 | | Your gateway's load balancer and fallback (§11) |
 
-### The service account
+### Create the proxy's service account
 
-- It needs the scope `policy.sync`, and it belongs to your organization: the proxy serves the
-  `orgCode` in its token, so there is no org setting.
-- It signs in with a **private key** (`private_key_jwt`, no client secret). The **public key**
-  is registered on the service account at the issuer (§5).
-- It may be on another issuer than your gateway's. Then set that issuer's JWKS URL under
-  **Policy decision proxy** on your dashboard's JWKS configuration page.
-- Its client id is `DECISION_PROXY_CLIENT_ID`.
+Do this first. The proxy cannot start without a client id.
+
+1. Create a service account for the proxy through the ScrambleID M2M flow, with the scope
+   `policy.sync`. It belongs to your organization: the proxy serves the `orgCode` in its token,
+   so there is no org setting.
+2. It signs in with a **private key** (`private_key_jwt`, no client secret). Make the key on the
+   proxy's host (§5) and register only its **public key** on the service account.
+3. Use its client id as `DECISION_PROXY_CLIENT_ID`, and the registered key's id, if it has one,
+   as `DECISION_PROXY_KEY_ID`.
+
+The account may be on another issuer than your gateway's. Then set that issuer's JWKS URL under
+**Policy decision proxy** on your dashboard's JWKS configuration page.
 
 ---
 
@@ -59,11 +64,12 @@ The image is public, so no login is needed.
 docker pull ghcr.io/scramble-ext/policy-decision-proxy:<version>
 docker image inspect ghcr.io/scramble-ext/policy-decision-proxy:<version> --format '{{index .RepoDigests 0}}'
 ```
-Compare the digest to the one ScrambleID published.
+Compare the digest to the one in `decision-proxy/releases/<version>/SHA256SUMS` of the
+`agentic-consent-proxies` repo.
 
 ### Option B — offline tarball
 ```bash
-sha256sum policy-decision-proxy-<version>.tar.gz     # compare to the published value
+sha256sum policy-decision-proxy-<version>.tar.gz     # compare to the checksum ScrambleID sent
 docker load -i policy-decision-proxy-<version>.tar.gz
 ```
 
@@ -81,7 +87,11 @@ Set the image reference in `.env` as `DECISION_PROXY_IMAGE`.
     └── private.pem      # YOUR private key (§5)
 ```
 
+Run these and §5 as root (or with `sudo`):
+
 ```bash
+git clone https://github.com/scramble-ext/agentic-consent-proxies.git
+cd agentic-consent-proxies
 mkdir -p /opt/policy-decision-proxy/secrets && chmod 700 /opt/policy-decision-proxy/secrets
 cp decision-proxy/deploy/docker-compose.yml /opt/policy-decision-proxy/docker-compose.yml
 cp decision-proxy/deploy/.env.example       /opt/policy-decision-proxy/.env
@@ -125,8 +135,13 @@ above. Fill in at least:
 - `DECISION_PROXY_IMAGE` — the pinned image from §3.
 - `DECISION_PROXY_BIND_IP` — the internal IP your gateway reaches. Not `0.0.0.0`.
 - `DECISION_PROXY_SERVER_URL` — `https://consent.scrambleid.com`.
-- `DECISION_PROXY_TOKEN_URL`, `DECISION_PROXY_CLIENT_ID` — the service account (§2).
-- `DECISION_PROXY_JWKS_URL` — the key set that signs your gateway's tokens.
+- `DECISION_PROXY_TOKEN_URL`, `DECISION_PROXY_TOKEN_ISSUER` — the values ScrambleID gave you
+  (§2).
+- `DECISION_PROXY_CLIENT_ID`, and `DECISION_PROXY_KEY_ID` if the key has an id — the service
+  account (§2).
+- `DECISION_PROXY_JWKS_URL` — the key set that signs your gateway's `policy.evaluate` tokens:
+  the same one ScrambleID checks them against (**Decision** on your dashboard's JWKS
+  configuration page).
 - `DECISION_PROXY_PRIVATE_KEY_FILE` — already set in the template to match the mount.
 
 Every setting is in `configuration.md`. A wrong setting stops the container at start and lists
