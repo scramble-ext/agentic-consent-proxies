@@ -1,0 +1,75 @@
+# ScrambleID Edge Proxy: customer deployment.
+#
+# Runs inside your network. Outbound to ScrambleID, your token issuer(s), your JWKS URL and your
+# callback receivers. Inbound only from your gateway (decisions), and only if that feature is on.
+# No database, no volume, nothing to back up.
+#
+# In this directory before `docker compose up -d`:
+#   ./docker-compose.yml   this file
+#   ./.env                 from .env.example, filled in (no secrets)
+#   ./secrets/private.pem  YOUR private key, made on this host (owner 1000, chmod 0400)
+#                          Only the public half goes to ScrambleID. Never in the image or in git.
+#                          (EDGE_PROXY_AUTH_MECHANISM=oidc_pvt_key_jwt. For oidc_client_creds mount
+#                          ./secrets/client-secret instead, see below.)
+#
+# Full steps: docs/customer-deployment.md.
+
+services:
+  edge-proxy:
+    # Pin the exact version ScrambleID gave you (tag or @sha256 digest). Never `latest`.
+    image: ${EDGE_PROXY_IMAGE:?Set EDGE_PROXY_IMAGE, e.g. ghcr.io/scramble-ext/scrambleid-edge-proxy:1.0.1}
+    container_name: edge-proxy
+
+    # Hardened runtime
+    user: "node"
+    read_only: true
+    init: true
+    restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    # Longer than the drain (5s) plus EDGE_PROXY_DRAIN_SECONDS (15s), so deliveries in flight finish.
+    stop_grace_period: 25s
+
+    # Decisions on: your gateway must reach this port. Bind to the internal interface it uses, not
+    # 0.0.0.0. Callbacks only: nothing needs to reach it but your monitoring, so keep 127.0.0.1.
+    ports:
+      - "${EDGE_PROXY_BIND_IP:?Set EDGE_PROXY_BIND_IP (127.0.0.1 if only callbacks are on)}:${EDGE_PROXY_HOST_PORT:-8080}:8080"
+
+    env_file:
+      - .env
+
+    environment:
+      EDGE_PROXY_HOST: 0.0.0.0
+      EDGE_PROXY_PORT: "8080"
+
+    # Keys are mounted read-only at run time; the edge proxy reads them once at start.
+    volumes:
+      # oidc_pvt_key_jwt (EDGE_PROXY_AUTH_MECHANISM): your private key.
+      - ./secrets/private.pem:/run/edge-proxy-secrets/private.pem:ro
+      # Encrypted key: also mount its passphrase and set EDGE_PROXY_PRIVATE_KEY_PASSPHRASE_FILE.
+      # - ./secrets/passphrase:/run/edge-proxy-secrets/passphrase:ro
+      # oidc_client_creds: a file holding only the client secret. Drop the private.pem mount.
+      # - ./secrets/client-secret:/run/edge-proxy-secrets/client-secret:ro
+      # Callback auth, private_key_jwt: your receiver's own key (not the one above).
+      # - ./secrets/callback-private.pem:/run/edge-proxy-secrets/callback-private.pem:ro
+      # Callback auth, client secret: a file holding only the secret.
+      # - ./secrets/callback-client-secret:/run/edge-proxy-secrets/callback-client-secret:ro
+      # Uncomment if your network re-signs TLS (corporate CA); also set NODE_EXTRA_CA_CERTS in .env.
+      # - ./secrets/corp-ca.pem:/run/edge-proxy-secrets/corp-ca.pem:ro
+
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+
+    # Alive, not ready. A stale edge proxy must leave your gateway's rotation, not be restarted.
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:8080/health/live').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

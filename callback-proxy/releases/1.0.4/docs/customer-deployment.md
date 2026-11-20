@@ -2,8 +2,9 @@
 
 **Audience:** the team deploying and operating the proxy inside your own network.
 **Companion docs:** `customer-overview.md` (what it is and why), `customer-troubleshooting.md`
-(when something is wrong). Deployment templates are in `callback-proxy/deploy/` of the
-`agentic-consent-proxies` repo.
+(when something is wrong). Deployment templates are in the `deploy/` folder beside these docs,
+under `callback-proxy/releases/<version>/` of the `agentic-consent-proxies` repo. Use the folder of
+the version you run.
 
 The proxy is a small, stateless container. It makes **one outbound connection** to the
 ScrambleID consent-server and delivers each consent decision to your callback endpoint.
@@ -78,23 +79,24 @@ Set the resulting image reference in `.env` as `CONSENT_PROXY_IMAGE`.
 ## 4. Lay out the stack directory
 
 Create a directory (e.g. `/opt/consent-proxy`) and copy the templates from
-`callback-proxy/deploy/` into it:
+`callback-proxy/releases/<version>/deploy/` into it:
 
 ```
 /opt/consent-proxy/
-├── docker-compose.yml          # from callback-proxy/deploy/docker-compose.yml
-├── .env                        # from callback-proxy/deploy/.env.example (fill in)
+├── docker-compose.yml          # from callback-proxy/releases/<version>/deploy/docker-compose.yml
+├── .env                        # from callback-proxy/releases/<version>/deploy/.env.example (fill in)
 ├── config/
-│   └── config.json             # from callback-proxy/deploy/config.example.json (fill in)
+│   └── config.json             # from callback-proxy/releases/<version>/deploy/config.example.json (fill in)
 └── secrets/
     └── private.pem             # YOUR private key
 ```
 
 ```bash
 mkdir -p /opt/consent-proxy/config /opt/consent-proxy/secrets
-cp callback-proxy/deploy/docker-compose.yml   /opt/consent-proxy/docker-compose.yml
-cp callback-proxy/deploy/.env.example         /opt/consent-proxy/.env
-cp callback-proxy/deploy/config.example.json  /opt/consent-proxy/config/config.json
+VERSION=1.0.4   # the version you run
+cp callback-proxy/releases/$VERSION/deploy/docker-compose.yml   /opt/consent-proxy/docker-compose.yml
+cp callback-proxy/releases/$VERSION/deploy/.env.example         /opt/consent-proxy/.env
+cp callback-proxy/releases/$VERSION/deploy/config.example.json  /opt/consent-proxy/config/config.json
 ```
 
 If ScrambleID sent you a delivery bundle, use its `docker-compose.yml`, `.env` and

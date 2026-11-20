@@ -3,7 +3,8 @@
 **Audience:** the team deploying and operating the proxy inside your own network.
 **Companion docs:** `customer-overview.md` (what it is and why), `configuration.md` (every
 setting), `customer-troubleshooting.md` (when something is wrong). Deployment templates are in
-`edge-proxy/deploy/` of the `agentic-consent-proxies` repo.
+the `deploy/` folder beside these docs, under `edge-proxy/releases/<version>/` of the
+`agentic-consent-proxies` repo. Use the folder of the version you run.
 
 The proxy is a small, stateless container. It makes **one outbound connection** to the ScrambleID
 consent-server. With `decisions` on it answers your gateway's decision calls. With `callbacks` on it
@@ -88,20 +89,21 @@ Set the resulting image reference in `.env` as `EDGE_PROXY_IMAGE`.
 
 ## 4. Lay out the stack directory
 
-Create a directory (e.g. `/opt/edge-proxy`) and copy the templates from `edge-proxy/deploy/`:
+Create a directory (e.g. `/opt/edge-proxy`) and copy the templates from `edge-proxy/releases/<version>/deploy/`:
 
 ```
 /opt/edge-proxy/
-├── docker-compose.yml          # from edge-proxy/deploy/docker-compose.yml
-├── .env                        # from edge-proxy/deploy/.env.example (fill in)
+├── docker-compose.yml          # from edge-proxy/releases/<version>/deploy/docker-compose.yml
+├── .env                        # from edge-proxy/releases/<version>/deploy/.env.example (fill in)
 └── secrets/
     └── private.pem             # YOUR private key
 ```
 
 ```bash
 mkdir -p /opt/edge-proxy/secrets
-cp edge-proxy/deploy/docker-compose.yml  /opt/edge-proxy/docker-compose.yml
-cp edge-proxy/deploy/.env.example        /opt/edge-proxy/.env
+VERSION=1.0.1   # the version you run
+cp edge-proxy/releases/$VERSION/deploy/docker-compose.yml  /opt/edge-proxy/docker-compose.yml
+cp edge-proxy/releases/$VERSION/deploy/.env.example        /opt/edge-proxy/.env
 ```
 
 If ScrambleID sent you a delivery bundle, use its `docker-compose.yml` and `.env` instead. They are

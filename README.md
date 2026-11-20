@@ -10,38 +10,47 @@ The ScrambleID Edge Proxy. It's optional. One container, one outbound connection
 gateway's decisions inside your network and delivers consent outcomes to your callback endpoint.
 Turn on either job or both. It replaces the Policy Decision Proxy and the Consent Notification Proxy.
 
+Latest version: **1.0.1**. Guides for that version:
+
 | Guide | Read it if |
 |---|---|
-| [Overview](edge-proxy/docs/customer-overview.md) | You're evaluating the proxy or reviewing its security. |
-| [Deployment runbook](edge-proxy/docs/customer-deployment.md) | You're installing or operating it. |
-| [Configuration](edge-proxy/docs/configuration.md) | You need every setting. |
-| [Troubleshooting](edge-proxy/docs/customer-troubleshooting.md) | Something isn't working. |
+| [Overview](edge-proxy/releases/1.0.1/docs/customer-overview.md) | You're evaluating the proxy or reviewing its security. |
+| [Deployment runbook](edge-proxy/releases/1.0.1/docs/customer-deployment.md) | You're installing or operating it. |
+| [Configuration](edge-proxy/releases/1.0.1/docs/configuration.md) | You need every setting. |
+| [Troubleshooting](edge-proxy/releases/1.0.1/docs/customer-troubleshooting.md) | Something isn't working. |
 
 ## Callback proxy
 
 The Consent Notification Proxy. It's optional. It receives consent outcomes over one outbound
 connection and delivers them to your callback endpoint. The edge proxy does this job too.
 
+Latest version: **1.0.4**. Guides for that version:
+
 | Guide | Read it if |
 |---|---|
-| [Overview](callback-proxy/docs/customer-overview.md) | You're evaluating the proxy or reviewing its security. |
-| [Deployment runbook](callback-proxy/docs/customer-deployment.md) | You're installing or operating it. |
-| [Configuration](callback-proxy/docs/configuration.md) | You need every setting. |
-| [Troubleshooting](callback-proxy/docs/customer-troubleshooting.md) | Something isn't working. |
+| [Overview](callback-proxy/releases/1.0.4/docs/customer-overview.md) | You're evaluating the proxy or reviewing its security. |
+| [Deployment runbook](callback-proxy/releases/1.0.4/docs/customer-deployment.md) | You're installing or operating it. |
+| [Configuration](callback-proxy/releases/1.0.4/docs/configuration.md) | You need every setting. |
+| [Troubleshooting](callback-proxy/releases/1.0.4/docs/customer-troubleshooting.md) | Something isn't working. |
 
 ## What's here
 
 ```
 README.md                  this page
 CHANGELOG.md               what changed in each release of this repo
-edge-proxy/docs/           guides
-edge-proxy/deploy/         compose file and .env template
-edge-proxy/releases/       checksums and SBOM per version
-callback-proxy/docs/       guides
-callback-proxy/deploy/     compose file, .env and config templates
-callback-proxy/releases/   checksums and SBOM per version
+edge-proxy/releases/<version>/
+  docs/                    guides for that version
+  deploy/                  compose file and .env template
+  SHA256SUMS, sbom.spdx.json
+callback-proxy/releases/<version>/
+  docs/                    guides for that version
+  deploy/                  compose file, .env and config templates
+  SHA256SUMS, sbom.spdx.json
 LICENSE                    terms of use
 ```
+
+Each version has its own folder, so the guides and templates always match that version's image.
+Use the folder of the version you run. A published version's folder does not change.
 
 ## Container images
 
