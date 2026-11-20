@@ -6,7 +6,7 @@ Everything a customer needs to deploy ScrambleID's consent proxies, shared by al
 
 ## Current Status
 
-Holds the Edge Proxy 1.0.1 (and 1.0.0) and the callback proxy (Consent Notification Proxy) 1.0.4: guides,
+Holds the Edge Proxy 1.0.1 (and 1.0.0) and, archived, the callback proxy (Consent Notification Proxy) 1.0.4: guides,
 templates, checksums and SBOM.
 
 ## Key Decisions
@@ -14,7 +14,7 @@ templates, checksums and SBOM.
 - One repo for all customers, so nothing customer-specific goes here.
 - This repo is about deploying the proxy. Consent and decision API docs stay on the consent server at `/docs`, the one source of truth, and are linked, never copied.
 - Images live in public GHCR packages under `scramble-ext`, so customers need no credentials. Never in this repo or the internal registry.
-- One top-level folder per proxy: `edge-proxy/` and `callback-proxy/`. Everything for a version is in `releases/<version>/`: `docs/`, `deploy/`, `SHA256SUMS` and SBOM. Guides and templates change between versions, so a customer reads the ones for the image they run.
+- One top-level folder per maintained proxy (`edge-proxy/`). Proxies no longer developed move, unchanged, to `archive/<proxy>/`; `archive/README.md` lists them. Everything for a version is in `releases/<version>/`: `docs/`, `deploy/`, `SHA256SUMS` and SBOM. Guides and templates change between versions, so a customer reads the ones for the image they run.
 - A published version's folder is frozen. A new release gets a new folder (copy the previous one, then apply that release's changes). Only wording fixes may go into a published folder, noted in `CHANGELOG.md`.
 - The README links to the latest version of each proxy. Update those links when releasing.
 - The edge proxy replaces the Policy Decision Proxy, which is removed. Its image is `scrambleid-edge-proxy` and its settings are `EDGE_PROXY_*`.
@@ -25,6 +25,7 @@ Docs and templates only. The private source repos stay the source of truth. This
 
 ## Recent Changes
 
+- Archived the callback proxy (`archive/callback-proxy/`).
 - Added Edge Proxy 1.0.1. Its SBOM is not here yet: the release SBOM names the image by an internal registry address, so it waits for one generated against the GHCR name.
 - Moved guides and templates into per-version folders (`releases/<version>/`).
 - Added the Edge Proxy 1.0.0 (decisions and callbacks in one image).
@@ -47,7 +48,7 @@ Docs and templates only. The private source repos stay the source of truth. This
 - `README.md`: landing page.
 - `CHANGELOG.md`: repo releases.
 - `edge-proxy/releases/<version>/`: `docs/` (guides), `deploy/` (compose file and `.env` template), `SHA256SUMS` (offline tarball checksum, image digest) and SBOM, copied from the release.
-- `callback-proxy/releases/<version>/`: the same for the callback proxy (`deploy/` also has the config template).
+- `archive/callback-proxy/releases/1.0.4/`: the archived callback proxy, same layout (`deploy/` also has the config template). Frozen.
 - `LICENSE`: terms of use.
 
 ## Environment Setup

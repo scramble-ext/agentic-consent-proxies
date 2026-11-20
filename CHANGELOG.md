@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Archived the Consent Notification Proxy (callback proxy): its folder moved to
+  `archive/callback-proxy/`, unchanged. The edge proxy with `callbacks` on replaces it.
 - ScrambleID Edge Proxy 1.0.1: same features and settings as 1.0.0. The offline image tarball and the
   registry image are now the same image, with one digest in `SHA256SUMS`. Use 1.0.1 rather than
   1.0.0, whose tarball and registry image were built separately. The 1.0.1 SBOM will be added here

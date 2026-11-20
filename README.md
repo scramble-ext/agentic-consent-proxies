@@ -19,19 +19,10 @@ Latest version: **1.0.1**. Guides for that version:
 | [Configuration](edge-proxy/releases/1.0.1/docs/configuration.md) | You need every setting. |
 | [Troubleshooting](edge-proxy/releases/1.0.1/docs/customer-troubleshooting.md) | Something isn't working. |
 
-## Callback proxy
+## Archived proxies
 
-The Consent Notification Proxy. It's optional. It receives consent outcomes over one outbound
-connection and delivers them to your callback endpoint. The edge proxy does this job too.
-
-Latest version: **1.0.4**. Guides for that version:
-
-| Guide | Read it if |
-|---|---|
-| [Overview](callback-proxy/releases/1.0.4/docs/customer-overview.md) | You're evaluating the proxy or reviewing its security. |
-| [Deployment runbook](callback-proxy/releases/1.0.4/docs/customer-deployment.md) | You're installing or operating it. |
-| [Configuration](callback-proxy/releases/1.0.4/docs/configuration.md) | You need every setting. |
-| [Troubleshooting](callback-proxy/releases/1.0.4/docs/customer-troubleshooting.md) | Something isn't working. |
+The Consent Notification Proxy (callback proxy, last version 1.0.4) is archived. The edge proxy with
+`callbacks` on does its job. Its guides stay in [archive/](archive/) for deployments that still run it.
 
 ## What's here
 
@@ -42,10 +33,7 @@ edge-proxy/releases/<version>/
   docs/                    guides for that version
   deploy/                  compose file and .env template
   SHA256SUMS, sbom.spdx.json
-callback-proxy/releases/<version>/
-  docs/                    guides for that version
-  deploy/                  compose file, .env and config templates
-  SHA256SUMS, sbom.spdx.json
+archive/                   proxies no longer developed (callback proxy)
 LICENSE                    terms of use
 ```
 
@@ -58,7 +46,7 @@ Images are not stored in this repo. They are public on GitHub Container Registry
 needed:
 
 - edge proxy: `ghcr.io/scramble-ext/scrambleid-edge-proxy:<version>`
-- callback proxy: `ghcr.io/scramble-ext/consent-proxy:<version>`
+- callback proxy (archived): `ghcr.io/scramble-ext/consent-proxy:<version>`
 
 ## Staying up to date
 
