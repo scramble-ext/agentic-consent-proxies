@@ -10,14 +10,15 @@ The ScrambleID Edge Proxy. It's optional. One container, one outbound connection
 gateway's decisions inside your network and delivers consent outcomes to your callback endpoint.
 Turn on either job or both. It replaces the Policy Decision Proxy and the Consent Notification Proxy.
 
-Latest version: **1.0.1**. Guides for that version:
+Latest version: **1.2.0**. Guides for that version:
 
 | Guide | Read it if |
 |---|---|
-| [Overview](edge-proxy/releases/1.0.1/docs/customer-overview.md) | You're evaluating the proxy or reviewing its security. |
-| [Deployment runbook](edge-proxy/releases/1.0.1/docs/customer-deployment.md) | You're installing or operating it. |
-| [Configuration](edge-proxy/releases/1.0.1/docs/configuration.md) | You need every setting. |
-| [Troubleshooting](edge-proxy/releases/1.0.1/docs/customer-troubleshooting.md) | Something isn't working. |
+| [Overview](edge-proxy/releases/1.2.0/docs/customer-overview.md) | You're evaluating the proxy or reviewing its security. |
+| [Deployment runbook](edge-proxy/releases/1.2.0/docs/customer-deployment.md) | You're installing or operating it. |
+| [Configuration](edge-proxy/releases/1.2.0/docs/configuration.md) | You need every setting. |
+| [Troubleshooting](edge-proxy/releases/1.2.0/docs/customer-troubleshooting.md) | Something isn't working. |
+| [GCP Agent Gateway](edge-proxy/releases/1.2.0/docs/customer-gcp-agent-gateway.md) | You use GCP Agent Gateway. |
 
 ## Archived proxies
 
@@ -32,7 +33,7 @@ CHANGELOG.md               what changed in each release of this repo
 edge-proxy/releases/<version>/
   docs/                    guides for that version
   deploy/                  compose file and .env template
-  SHA256SUMS, sbom.spdx.json
+  SHA256SUMS, sbom.spdx.json   (up to 1.0.1; from 1.2.0 the checksums come with the delivery bundle)
 archive/                   proxies no longer developed (callback proxy)
 LICENSE                    terms of use
 ```

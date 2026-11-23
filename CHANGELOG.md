@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- ScrambleID Edge Proxy 1.2.0: works with GCP Agent Gateway (the `ext_proc` adapter of `decisions`),
+  and accepts consent tokens on `POST /decisions`. New guide: `customer-gcp-agent-gateway.md`. The
+  checksums (`SHA256SUMS`: image digest and tarball checksum) come with the delivery bundle, not
+  in the version folder.
 - Archived the Consent Notification Proxy (callback proxy): its folder moved to
   `archive/callback-proxy/`, unchanged. The edge proxy with `callbacks` on replaces it.
 - ScrambleID Edge Proxy 1.0.1: same features and settings as 1.0.0. The offline image tarball and the
