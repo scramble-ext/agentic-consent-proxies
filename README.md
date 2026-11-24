@@ -48,8 +48,8 @@ The edge proxy image is a file, not a registry pull. Each version has a
 with the image tarball, `SHA256SUMS` and the SBOM. Download, check and load them as the version's
 deployment runbook says.
 
-Versions up to 1.2.0 are also on GitHub Container Registry (`ghcr.io/scramble-ext/scrambleid-edge-proxy`,
-public, no login). The archived callback proxy stays there too (`ghcr.io/scramble-ext/consent-proxy`).
+The archived callback proxy's image stays on GitHub Container Registry
+(`ghcr.io/scramble-ext/consent-proxy`, public, no login).
 
 ## Staying up to date
 

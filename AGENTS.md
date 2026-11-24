@@ -37,7 +37,7 @@ Docs and templates only. The private source repos stay the source of truth. This
 
 ## Next Steps
 
-- Add `edge-proxy/releases/1.0.1/sbom.spdx.json` once one exists that names the image by its GHCR address.
+- Add `edge-proxy/releases/1.0.1/sbom.spdx.json` once one exists that does not name the image by an internal registry address.
 
 ## Notes for Next Agent
 
