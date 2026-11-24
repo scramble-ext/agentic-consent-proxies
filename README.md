@@ -33,7 +33,7 @@ CHANGELOG.md               what changed in each release of this repo
 edge-proxy/releases/<version>/
   docs/                    guides for that version
   deploy/                  compose file and .env template
-  SHA256SUMS, sbom.spdx.json   (up to 1.0.1; from 1.2.0 the checksums come with the delivery bundle)
+  SHA256SUMS, sbom.spdx.json   (up to 1.0.1; later versions have them on the release page)
 archive/                   proxies no longer developed (callback proxy)
 LICENSE                    terms of use
 ```
@@ -41,13 +41,15 @@ LICENSE                    terms of use
 Each version has its own folder, so the guides and templates always match that version's image.
 Use the folder of the version you run. A published version's folder does not change.
 
-## Container images
+## Getting the image
 
-Images are not stored in this repo. They are public on GitHub Container Registry, so no login is
-needed:
+The edge proxy image is a file, not a registry pull. Each version has a
+[release page](https://github.com/scramble-ext/agentic-consent-proxies/releases) (`edge-proxy-v<version>`)
+with the image tarball, `SHA256SUMS` and the SBOM. Download, check and load them as the version's
+deployment runbook says.
 
-- edge proxy: `ghcr.io/scramble-ext/scrambleid-edge-proxy:<version>`
-- callback proxy (archived): `ghcr.io/scramble-ext/consent-proxy:<version>`
+Versions up to 1.2.0 are also on GitHub Container Registry (`ghcr.io/scramble-ext/scrambleid-edge-proxy`,
+public, no login). The archived callback proxy stays there too (`ghcr.io/scramble-ext/consent-proxy`).
 
 ## Staying up to date
 
