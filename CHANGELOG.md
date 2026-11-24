@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Edge proxy images are now downloaded as a tarball from each version's release page, with `SHA256SUMS`
+  and the SBOM. The registry image is no longer published for new versions. Versions up to 1.2.0 stay on
+  GitHub Container Registry. The deployment runbook of each new version describes the download.
 - ScrambleID Edge Proxy 1.2.0: works with GCP Agent Gateway (the `ext_proc` adapter of `decisions`),
   and accepts consent tokens on `POST /decisions`. New guide: `customer-gcp-agent-gateway.md`. The
   checksums (`SHA256SUMS`: image digest and tarball checksum) come with the delivery bundle, not
